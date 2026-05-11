@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数学II 指数関数 学習アプリ</title>
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+    startup: { ready() { MathJax.startup.defaultReady(); } }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --navy: #1a3a5c;
+  --blue: #2563eb;
+  --light-blue: #dbeafe;
+  --orange: #ea580c;
+  --light-orange: #fff7ed;
+  --green: #16a34a;
+  --light-green: #dcfce7;
+  --red: #dc2626;
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-600: #475569;
+  --gray-800: #1e293b;
+  --white: #ffffff;
+  --radius: 12px;
+  --shadow: 0 2px 12px rgba(0,0,0,.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { overflow-x: hidden; }
+body {
+  font-family: "Hiragino Sans", "Yu Gothic UI", sans-serif;
+  background: var(--gray-100);
+  color: var(--gray-800);
+  min-height: 100vh;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* ── Header ── */
+header {
+  background: linear-gradient(135deg, var(--navy) 0%, #2d5a8e 100%);
+  color: white;
+  padding: 20px 24px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 16px rgba(0,0,0,.2);
+}
+.header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.header-icon { font-size: 28px; }
+header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: .03em; }
+header p { font-size: .8rem; opacity: .75; margin-top: 2px; }
+
+/* ── Nav tabs ── */
+nav { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-bottom: 0; }
+nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  background: none; border: none;
+  color: rgba(255,255,255,.65); font-size: .82rem; font-weight: 600;
+  padding: 10px 14px 12px; cursor: pointer; border-radius: 8px 8px 0 0;
+  white-space: nowrap; transition: all .2s; letter-spacing: .02em;
+}
+.tab-btn:hover { color: white; background: rgba(255,255,255,.1); }
+.tab-btn.active { color: var(--navy); background: var(--gray-100); }
+.tab-btn .badge {
+  display: inline-block; background: rgba(255,255,255,.25);
+  font-size: .65rem; padding: 1px 5px; border-radius: 10px; margin-left: 4px;
+}
+.tab-btn.active .badge { background: var(--blue); color: white; }
+
+/* ── Main ── */
+main { max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
+
+/* ── Sections ── */
+.section { display: none; animation: fadeIn .3s ease; }
+.section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Cards ── */
+.card {
+  background: var(--white); border-radius: var(--radius);
+  padding: 24px; margin-bottom: 20px;
+  box-shadow: var(--shadow); border: 1px solid var(--gray-200);
+}
+.card-title {
+  font-size: 1.15rem; font-weight: 700; color: var(--navy);
+  margin-bottom: 16px; padding-bottom: 10px;
+  border-bottom: 2px solid var(--light-blue);
+  display: flex; align-items: center; gap: 8px;
+}
+.card-title .icon { font-size: 1.3rem; }
+
+/* ── Formula boxes ── */
+.formula-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+@media (max-width: 640px) { .formula-grid { grid-template-columns: 1fr; } }
+.formula-box {
+  background: var(--light-blue); border-radius: 8px;
+  padding: 14px 16px; border-left: 4px solid var(--blue);
+  min-width: 0;
+}
+.formula-box .label { font-size: .75rem; color: var(--blue); font-weight: 700; margin-bottom: 6px; letter-spacing: .05em; }
+.formula-box .formula { font-size: 1rem; text-align: center; overflow-x: auto; max-width: 100%; }
+.formula-highlight {
+  background: #fefce8; border: 1.5px solid #ca8a04;
+  border-radius: 8px; padding: 14px 20px; margin: 14px 0; text-align: center;
+  font-size: 1.1rem; overflow-x: auto; max-width: 100%;
+}
+
+/* ── Callout boxes ── */
+.callout {
+  border-radius: 8px; padding: 14px 16px; margin: 14px 0;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.callout-info    { background: #eff6ff; border: 1px solid #bfdbfe; }
+.callout-warning { background: #fff7ed; border: 1px solid #fed7aa; }
+.callout-success { background: var(--light-green); border: 1px solid #86efac; }
+.callout-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+.callout-body { font-size: .9rem; line-height: 1.7; min-width: 0; overflow-wrap: break-word; }
+.callout-body strong { color: var(--navy); }
+
+/* ── Example / Step ── */
+.example-block {
+  background: var(--gray-50); border-radius: 8px;
+  padding: 16px 18px; margin: 14px 0; border: 1px solid var(--gray-200);
+}
+.example-block .ex-title {
+  font-size: .78rem; font-weight: 700; color: var(--orange);
+  text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px;
+}
+.step-list { list-style: none; }
+.step-list li {
+  display: flex; gap: 10px; align-items: baseline;
+  padding: 6px 0; border-bottom: 1px dashed var(--gray-200); font-size: .93rem;
+  min-width: 0; overflow: hidden;
+}
+.step-list li > span:last-child { min-width: 0; overflow-x: auto; display: block; }
+.step-list li:last-child { border-bottom: none; }
+.step-num {
+  background: var(--navy); color: white;
+  border-radius: 50%; width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; font-weight: 700; flex-shrink: 0;
+}
+
+/* ── Table ── */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+.table-scroll table { min-width: 320px; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 14px 0; }
+th { background: var(--navy); color: white; padding: 9px 12px; text-align: center; font-weight: 600; word-break: keep-all; }
+td { padding: 8px 12px; text-align: center; border-bottom: 1px solid var(--gray-200); word-break: break-word; }
+tr:nth-child(even) td { background: var(--gray-50); }
+
+/* ── Interactive Graph ── */
+.graph-controls {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin-bottom: 20px;
+}
+@media (max-width: 640px) { .graph-controls { grid-template-columns: 1fr; } }
+.control-group { display: flex; flex-direction: column; gap: 6px; }
+.control-label { font-size: .8rem; font-weight: 700; color: var(--gray-600); letter-spacing: .04em; }
+.slider-row { display: flex; align-items: center; gap: 10px; }
+input[type=range] {
+  flex: 1; -webkit-appearance: none; appearance: none;
+  height: 6px; border-radius: 3px; background: var(--gray-200); outline: none;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 22px; height: 22px;
+  border-radius: 50%; background: var(--blue); cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+.slider-val {
+  background: var(--blue); color: white;
+  padding: 3px 10px; border-radius: 20px; font-size: .85rem; font-weight: 700;
+  min-width: 52px; text-align: center;
+}
+.graph-props {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px; margin-top: 16px;
+}
+.prop-card {
+  background: var(--gray-50); border: 1px solid var(--gray-200);
+  border-radius: 8px; padding: 12px 14px;
+}
+.prop-card .prop-label { font-size: .73rem; color: var(--gray-600); font-weight: 600; margin-bottom: 4px; }
+.prop-card .prop-value { font-size: .95rem; font-weight: 700; color: var(--navy); }
+.canvas-wrap { position: relative; height: 380px; }
+.toggle-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.toggle-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 20px; border: 2px solid var(--gray-200);
+  background: white; cursor: pointer; font-size: .82rem; font-weight: 600; transition: all .2s;
+}
+.toggle-btn.on { border-color: var(--blue); background: var(--light-blue); color: var(--navy); }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* ── Graph value table ── */
+.graph-val-table { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--gray-200); }
+.graph-val-table .val-label {
+  font-size: .75rem; font-weight: 700; color: var(--gray-600);
+  letter-spacing: .07em; text-transform: uppercase; margin-bottom: 10px;
+}
+#valTable { min-width: 260px; }
+#valTable th.th-a { background: #1d4ed8; }
+#valTable th.th-b { background: #c2410c; }
+#valTable td.y-a { font-weight: 600; color: #1d4ed8; }
+#valTable td.y-b { font-weight: 600; color: #c2410c; }
+#valTable td.y-dim { color: var(--gray-200); }
+#valTable tr.row-zero td { background: #fefce8; font-weight: 700; }
+
+/* ── MathJax overflow ── */
+mjx-container {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+mjx-container[display="true"] {
+  display: block !important;
+  overflow-x: auto;
+  padding: 4px 2px;
+  text-align: center;
+  max-width: 100%;
+}
+/* 狭い画面では数式をわずかに縮小 */
+@media (max-width: 640px) {
+  mjx-container { font-size: 93%; }
+  mjx-container[display="true"] { font-size: 90%; }
+}
+
+/* ── Quiz ── */
+.quiz-card {
+  background: white; border-radius: 10px; padding: 20px;
+  margin-bottom: 16px; border: 2px solid var(--gray-200);
+  transition: border-color .2s;
+}
+.quiz-card.correct { border-color: var(--green); background: var(--light-green); }
+.quiz-card.wrong   { border-color: var(--red);   background: #fef2f2; }
+.quiz-num { font-size: .75rem; font-weight: 700; color: var(--blue); letter-spacing: .08em; margin-bottom: 10px; }
+.quiz-q   { font-size: 1rem; margin-bottom: 14px; line-height: 1.6; }
+.quiz-choices { display: flex; flex-direction: column; gap: 8px; }
+.choice-btn {
+  background: var(--gray-50); border: 2px solid var(--gray-200);
+  border-radius: 8px; padding: 10px 14px; cursor: pointer;
+  text-align: left; font-size: .93rem; transition: all .2s;
+  display: flex; align-items: center; gap: 10px;
+}
+.choice-btn:hover:not(:disabled) { border-color: var(--blue); background: var(--light-blue); }
+.choice-btn.selected-correct { border-color: var(--green); background: var(--light-green); }
+.choice-btn.selected-wrong   { border-color: var(--red);   background: #fef2f2; }
+.choice-btn.reveal-correct   { border-color: var(--green); }
+.choice-btn:disabled { cursor: default; }
+.choice-label {
+  width: 26px; height: 26px; border-radius: 6px;
+  background: var(--gray-200); display: flex; align-items: center;
+  justify-content: center; font-weight: 700; font-size: .8rem; flex-shrink: 0;
+}
+.quiz-explanation {
+  margin-top: 12px; padding: 10px 14px;
+  background: #f0fdf4; border-radius: 6px;
+  font-size: .88rem; line-height: 1.6; color: #166534;
+  border-left: 3px solid var(--green); display: none;
+}
+.quiz-result {
+  text-align: center; padding: 24px;
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  border-radius: 12px; color: white; margin-top: 20px; display: none;
+}
+.quiz-result .result-score { font-size: 2.5rem; font-weight: 900; }
+.quiz-result .result-msg   { font-size: 1rem; opacity: .85; margin-top: 8px; }
+
+/* ── Unit tabs (quiz) ── */
+.unit-tabs {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 20px; padding-bottom: 18px;
+  border-bottom: 2px solid var(--gray-200);
+}
+.unit-tab {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 10px 12px; border-radius: 10px;
+  border: 2px solid var(--gray-200); background: white;
+  cursor: pointer; transition: all .2s;
+  flex: 1; min-width: 90px;
+}
+.unit-tab:hover:not(.active) { border-color: var(--blue); }
+.unit-tab.active { border-color: var(--blue); background: var(--light-blue); }
+.unit-tab.done   { border-color: var(--green); background: var(--light-green); }
+.unit-tab .u-icon  { font-size: 1.25rem; line-height: 1; }
+.unit-tab .u-name  { font-size: .68rem; font-weight: 700; color: var(--navy); margin-top: 4px; text-align: center; line-height: 1.3; }
+.unit-tab .u-score { font-size: .68rem; color: var(--gray-600); margin-top: 3px; font-weight: 600; }
+.unit-tab.done .u-score { color: var(--green); }
+
+/* ── Unit header ── */
+.unit-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px; padding: 12px 16px;
+  background: var(--gray-50); border-radius: 8px;
+  flex-wrap: wrap; gap: 8px;
+}
+.unit-title-row { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--navy); font-size: 1rem; }
+.unit-badge-pill {
+  background: var(--blue); color: white;
+  font-size: .65rem; padding: 2px 8px; border-radius: 10px; font-weight: 700;
+}
+.unit-progress-txt { font-size: .88rem; color: var(--gray-600); }
+.unit-progress-txt strong { color: var(--navy); }
+
+/* ── Unit nav ── */
+.unit-nav {
+  display: flex; gap: 10px; margin-top: 20px; justify-content: space-between;
+}
+.unit-nav-btn {
+  padding: 10px 18px; border-radius: 8px;
+  border: 2px solid var(--gray-200); background: white;
+  cursor: pointer; font-size: .88rem; font-weight: 600;
+  color: var(--navy); transition: all .2s; flex: 1; text-align: center;
+}
+.unit-nav-btn:hover:not(:disabled) { border-color: var(--blue); background: var(--light-blue); }
+.unit-nav-btn.reset-btn { flex: 0 0 auto; }
+.unit-nav-btn:disabled { opacity: .35; cursor: default; }
+
+/* ── Progress grid ── */
+.progress-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin-top: 14px;
+}
+.prog-cell {
+  border-radius: 8px; padding: 12px 10px; text-align: center;
+  border: 1.5px solid var(--gray-200);
+}
+.prog-cell.unit-done { border-color: var(--green); background: var(--light-green); }
+.prog-cell .pc-unit { font-size: .68rem; font-weight: 700; color: var(--gray-600); }
+.prog-cell .pc-num  { font-size: 1.2rem; font-weight: 900; color: var(--navy); margin: 4px 0; }
+.prog-cell.unit-done .pc-num { color: var(--green); }
+.prog-cell .pc-bar-wrap { height: 5px; background: var(--gray-200); border-radius: 3px; overflow: hidden; }
+.prog-cell .pc-bar { height: 100%; background: var(--green); border-radius: 3px; transition: width .5s; }
+
+/* ── App cards ── */
+.app-card {
+  background: linear-gradient(135deg, #1e3a5c 0%, #2d5a8e 100%);
+  color: white; border-radius: 12px; padding: 24px; margin-bottom: 20px;
+}
+.app-card h3 { font-size: 1.1rem; margin-bottom: 12px; opacity: .9; }
+.app-card p  { font-size: .9rem; line-height: 1.7; opacity: .85; }
+.app-fact {
+  display: block; background: rgba(255,255,255,.15);
+  border-radius: 8px; padding: 8px 16px; margin: 10px 0; font-size: .9rem;
+  overflow-x: auto; max-width: 100%;
+}
+
+/* ── Utility ── */
+p { line-height: 1.75; font-size: .93rem; margin-bottom: 10px; }
+.text-center { text-align: center; }
+.mt-12 { margin-top: 12px; }
+.highlight { color: var(--orange); font-weight: 700; }
+.subtle { color: var(--gray-600); font-size: .85rem; }
+hr { border: none; border-top: 1px solid var(--gray-200); margin: 20px 0; }
+
+/* ── Mobile (640px以下 ＝ iPhone・Google Sites埋め込み対応) ── */
+@media (max-width: 640px) {
+  header { padding: 12px 12px 0; }
+  .header-top { margin-bottom: 8px; gap: 8px; }
+  .header-icon { font-size: 20px; }
+  header h1 { font-size: 1rem; }
+  header p  { display: none; }
+  .tab-btn  { padding: 8px 8px 10px; font-size: .7rem; }
+  .tab-btn .badge { display: none; }
+  main { padding: 12px 8px 70px; }
+  .card { padding: 14px 12px; margin-bottom: 12px; }
+  .card-title { font-size: .95rem; margin-bottom: 10px; }
+
+  /* 数式ボックス */
+  .formula-highlight { font-size: .88rem; padding: 10px 12px; }
+  .formula-grid { gap: 8px; grid-template-columns: 1fr; }
+  .formula-box { padding: 10px 12px; }
+  .formula-box .formula { font-size: .88rem; }
+
+  /* コールアウト */
+  .callout { padding: 10px 10px; gap: 8px; }
+  .callout-body { font-size: .82rem; }
+
+  /* ステップリスト */
+  .example-block { padding: 12px 10px; }
+  .step-list li { font-size: .85rem; gap: 8px; }
+
+  /* グラフ */
+  .canvas-wrap { height: 220px; }
+  input[type=range] { height: 8px; }
+  input[type=range]::-webkit-slider-thumb { width: 28px; height: 28px; }
+  .graph-props { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .prop-card { padding: 8px 8px; }
+  .prop-card .prop-label { font-size: .68rem; }
+  .prop-card .prop-value { font-size: .82rem; }
+  .toggle-btn { padding: 5px 10px; font-size: .78rem; }
+
+  /* テーブル */
+  .table-scroll table { min-width: 0; }
+  table { font-size: .78rem; }
+  th { padding: 7px 6px; }
+  td { padding: 6px 6px; }
+
+  /* 応用カード */
+  .app-card { padding: 16px 12px; }
+  .app-fact { font-size: .85rem; padding: 6px 12px; }
+
+  /* クイズ */
+  .quiz-card { padding: 14px 12px; }
+  .quiz-q { font-size: .93rem; }
+  .choice-btn { padding: 10px 10px; font-size: .85rem; }
+  .choice-label { width: 22px; height: 22px; font-size: .75rem; }
+
+  /* 単元タブ */
+  .unit-tab { padding: 7px 4px; min-width: 60px; }
+  .unit-tab .u-icon { font-size: 1.1rem; }
+  .unit-tab .u-name { font-size: .6rem; }
+  .unit-nav-btn { padding: 9px 8px; font-size: .78rem; }
+  .progress-grid { grid-template-columns: repeat(2, 1fr); }
+  p { font-size: .87rem; }
+}
+
+/* さらに狭い画面（〜375px、iPhone SE等）向け追加調整 */
+@media (max-width: 390px) {
+  header h1 { font-size: .92rem; }
+  .tab-btn  { padding: 7px 6px 9px; font-size: .65rem; }
+  main { padding: 10px 6px 70px; }
+  .card { padding: 12px 10px; }
+  .formula-box .formula { font-size: .82rem; }
+  .formula-highlight { font-size: .82rem; }
+  table { font-size: .74rem; }
+  th, td { padding: 5px 4px; }
+  mjx-container { font-size: 88%; }
+  mjx-container[display="true"] { font-size: 85%; }
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  main { padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <span class="header-icon">📐</span>
+    <div>
+      <h1>数学II 指数関数</h1>
+      <p>高校2年 ／ 全14回 学習コンテンツ</p>
+    </div>
+  </div>
+  <nav id="mainNav">
+    <button class="tab-btn active" onclick="showTab('s1')">指数法則 <span class="badge">No.1-2</span></button>
+    <button class="tab-btn" onclick="showTab('s2')">整数指数の拡張 <span class="badge">No.3</span></button>
+    <button class="tab-btn" onclick="showTab('s3')">累乗根・分数指数 <span class="badge">No.4-8</span></button>
+    <button class="tab-btn" onclick="showTab('s4')">グラフ（体験） <span class="badge">No.9-10</span></button>
+    <button class="tab-btn" onclick="showTab('s5')">方程式・不等式 <span class="badge">No.11-13</span></button>
+    <button class="tab-btn" onclick="showTab('s6')">身近な応用 <span class="badge">No.14</span></button>
+    <button class="tab-btn" onclick="showTab('quiz')">✏️ 練習問題</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ===== SECTION 1: 指数法則 ===== -->
+<div id="s1" class="section active">
+  <div class="card">
+    <div class="card-title"><span class="icon">🌏</span>なぜ指数を学ぶのか？</div>
+    <p>地球の質量は約 <strong>5,970,000,000,000,000,000,000,000 kg</strong> ——読めますか？</p>
+    <p>このような巨大な数や微小な数を扱うとき、<strong>指数（指数表記）</strong>を使うと便利です。</p>
+    <div class="formula-highlight">\( 5.97 \times 10^{24} \, \text{kg} \)</div>
+    <div class="callout callout-info">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">スケール（桁）を表すのに「10の何乗か」はよく使われます。天文学・生物学・物理学でも不可欠な表現です。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📖</span>累乗と指数の意味</div>
+    <div class="formula-highlight">\( 2^3 = 2 \times 2 \times 2 = 8 \)</div>
+    <p>このとき <strong>2</strong> を <span class="highlight">底（てい）</span>、<strong>3</strong> を <span class="highlight">指数（しすう）</span> と呼びます。</p>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>式</th><th>読み方</th><th>値</th></tr></thead>
+      <tbody>
+        <tr><td>\(2^4\)</td><td>2の4乗</td><td>16</td></tr>
+        <tr><td>\(3^3\)</td><td>3の3乗（3の立方）</td><td>27</td></tr>
+        <tr><td>\(10^6\)</td><td>10の6乗</td><td>1,000,000</td></tr>
+        <tr><td>\((-2)^3\)</td><td>-2の3乗</td><td>-8</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">⚡</span>指数法則 4つ</div>
+    <p>指数計算には4つの重要な法則があります。<strong>覚えるのではなく、仕組みを理解しましょう。</strong></p>
+    <div class="formula-grid">
+      <div class="formula-box"><div class="label">法則①　かけ算 → 指数のたし算</div><div class="formula">\( a^m \cdot a^n = a^{m+n} \)</div></div>
+      <div class="formula-box"><div class="label">法則②　わり算 → 指数のひき算</div><div class="formula">\( a^m \div a^n = a^{m-n} \)</div></div>
+      <div class="formula-box"><div class="label">法則③　累乗の累乗 → 指数のかけ算</div><div class="formula">\( (a^m)^n = a^{mn} \)</div></div>
+      <div class="formula-box"><div class="label">法則④　積の累乗 → 分配</div><div class="formula">\( (ab)^n = a^n b^n \)</div></div>
+    </div>
+    <div class="example-block">
+      <div class="ex-title">例題</div>
+      <ul class="step-list">
+        <li><span class="step-num">1</span><span>\(a^3 \times a^2 = a^{3+2} = a^5\)　（法則①）</span></li>
+        <li><span class="step-num">2</span><span>\(a^5 \div a^2 = a^{5-2} = a^3\)　（法則②）</span></li>
+        <li><span class="step-num">3</span><span>\((a^2)^3 = a^{2 \times 3} = a^6\)　（法則③）</span></li>
+        <li><span class="step-num">4</span><span>\((ab)^3 = a^3 b^3\)　（法則④）</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🗻</span>応用：紙を折ると富士山を超える？</div>
+    <p>厚さ 0.1mm の紙を折り続けると、何回で富士山（3,776m）の高さを超えるでしょう？</p>
+    <div class="callout callout-warning">
+      <span class="callout-icon">🔑</span>
+      <div class="callout-body">
+        <strong>ポイント：</strong> \(2^{10} = 1024 \approx 1000 = 10^3\) を利用する！<br>
+        \(2^{20} \approx 10^6\)（= 100m）、さらに5回折ると \(2^{25} \approx 3200\text{m}\)、あと1回で超える。
+      </div>
+    </div>
+    <div class="formula-highlight">答え：<strong>26回</strong> 折ると富士山の高さを超える！</div>
+  </div>
+</div>
+
+<!-- ===== SECTION 2: 整数指数の拡張 ===== -->
+<div id="s2" class="section">
+  <div class="card">
+    <div class="card-title"><span class="icon">🦠</span>ばいばい菌の話</div>
+    <p>「ばいばい菌」は1時間で2倍に増える菌です。x時間後の倍率を考えます。</p>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>時間</th><th>倍率（式）</th><th>倍率（値）</th></tr></thead>
+      <tbody>
+        <tr><td>3時間後</td><td>\(2^3\)</td><td>8倍</td></tr>
+        <tr><td>1時間後</td><td>\(2^1\)</td><td>2倍</td></tr>
+        <tr><td>0時間後（今）</td><td>\(2^0\)</td><td>1倍（変わらない！）</td></tr>
+        <tr><td>-3時間後（3時間前）</td><td>\(2^{-3}\)</td><td>\(\frac{1}{8}\)倍</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">0️⃣</span>指数が 0 のとき</div>
+    <div class="example-block">
+      <div class="ex-title">証明</div>
+      <ul class="step-list">
+        <li><span class="step-num">1</span><span>\( a^3 \div a^3 \) を計算すると \( = 1 \)（同じ数を割るから）</span></li>
+        <li><span class="step-num">2</span><span>指数法則②で \( a^3 \div a^3 = a^{3-3} = a^0 \)</span></li>
+        <li><span class="step-num">3</span><span>よって \( a^0 = 1 \)</span></li>
+      </ul>
+    </div>
+    <div class="formula-highlight">\( a^0 = 1 \quad (a \neq 0) \)</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">➖</span>指数が負の数のとき</div>
+    <div class="example-block">
+      <div class="ex-title">証明</div>
+      <ul class="step-list">
+        <li><span class="step-num">1</span><span>\( a^2 \div a^5 \) を普通に計算すると \( = \dfrac{1}{a^3} \)</span></li>
+        <li><span class="step-num">2</span><span>指数法則②で \( a^2 \div a^5 = a^{2-5} = a^{-3} \)</span></li>
+        <li><span class="step-num">3</span><span>よって \( a^{-3} = \dfrac{1}{a^3} \)</span></li>
+      </ul>
+    </div>
+    <div class="formula-grid">
+      <div class="formula-box"><div class="label">ゼロ乗</div><div class="formula">\( a^0 = 1 \)</div></div>
+      <div class="formula-box"><div class="label">負の乗（逆数！）</div><div class="formula">\( a^{-n} = \dfrac{1}{a^n} \)</div></div>
+    </div>
+    <div class="callout callout-info">
+      <span class="callout-icon">💡</span>
+      <div class="callout-body">
+        <strong>覚え方：</strong>マイナス乗 = 逆数にする！<br>
+        \( 2^{-3} = \dfrac{1}{2^3} = \dfrac{1}{8} \)、　\( \left(\dfrac{1}{3}\right)^{-2} = 3^2 = 9 \)
+      </div>
+    </div>
+    <div class="example-block">
+      <div class="ex-title">練習（答えを確認）</div>
+      <ul class="step-list">
+        <li><span class="step-num">①</span><span>\( 3^0 = 1 \)</span></li>
+        <li><span class="step-num">②</span><span>\( 2^{-4} = \dfrac{1}{16} \)</span></li>
+        <li><span class="step-num">③</span><span>\( a^{-5} \times a^2 = a^{-3} = \dfrac{1}{a^3} \)</span></li>
+        <li><span class="step-num">④</span><span>\( a^{-2} \div a^4 = a^{-6} = \dfrac{1}{a^6} \)</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: 累乗根・分数指数 ===== -->
+<div id="s3" class="section">
+  <div class="card">
+    <div class="card-title"><span class="icon">🌱</span>累乗根（n乗根）とは？</div>
+    <p>「n乗するとaになる数」を <strong>aのn乗根</strong> といい、\( \sqrt[n]{a} \) と書きます。</p>
+    <div class="formula-highlight">\( x^n = a \) を満たすxが \( \sqrt[n]{a} \)</div>
+    <div class="callout callout-warning">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <strong>偶数乗根と奇数乗根で違いがあります！</strong><br>
+        ・<strong>奇数乗根</strong>：答えは1つ（マイナスもOK）　例：\(\sqrt[3]{-8} = -2\)<br>
+        ・<strong>偶数乗根</strong>：正と負の2つ（\(\sqrt[n]{a}\) は正の方）　例：\(\sqrt[4]{81} = 3\)
+      </div>
+    </div>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>種類</th><th>例</th><th>答えの個数</th><th>マイナス可否</th></tr></thead>
+      <tbody>
+        <tr><td>奇数乗根</td><td>\(\sqrt[3]{8} = 2\)、\(\sqrt[3]{-27} = -3\)</td><td>1つ</td><td>○</td></tr>
+        <tr><td>偶数乗根</td><td>\(\sqrt[4]{16} = 2\)（正）</td><td>2つ→正を選ぶ</td><td>✕</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🔢</span>指数を分数へ拡張</div>
+    <p>30分後のばいばい菌の倍率は \( 2^{\frac{1}{2}} \) ですが、これはどんな数でしょう？</p>
+    <div class="example-block">
+      <div class="ex-title">考え方</div>
+      <ul class="step-list">
+        <li><span class="step-num">1</span><span>\( 2^{\frac{1}{2}} \) を2乗すると \( (2^{\frac{1}{2}})^2 = 2^1 = 2 \)</span></li>
+        <li><span class="step-num">2</span><span>「2乗すると2になる数」= \( \sqrt{2} \)</span></li>
+        <li><span class="step-num">3</span><span>よって \( 2^{\frac{1}{2}} = \sqrt{2} \)</span></li>
+      </ul>
+    </div>
+    <div class="formula-grid">
+      <div class="formula-box"><div class="label">分数指数（基本）</div><div class="formula">\( a^{\frac{1}{n}} = \sqrt[n]{a} \)</div></div>
+      <div class="formula-box"><div class="label">分数指数（一般）</div><div class="formula">\( a^{\frac{m}{n}} = \sqrt[n]{a^m} = \left(\sqrt[n]{a}\right)^m \)</div></div>
+    </div>
+    <div class="callout callout-success">
+      <span class="callout-icon">✅</span>
+      <div class="callout-body"><strong>計算のコツ：累乗根→分数指数に直して指数法則で計算！</strong><br>素因数分解と組み合わせることで、多くの問題が解けます。</div>
+    </div>
+    <div class="example-block">
+      <div class="ex-title">例題</div>
+      <ul class="step-list">
+        <li><span class="step-num">①</span><span>\( 8^{\frac{1}{3}} = (2^3)^{\frac{1}{3}} = 2^1 = 2 \)</span></li>
+        <li><span class="step-num">②</span><span>\( 9^{\frac{3}{2}} = (3^2)^{\frac{3}{2}} = 3^3 = 27 \)</span></li>
+        <li><span class="step-num">③</span><span>\( 4^{-\frac{1}{2}} = \dfrac{1}{4^{\frac{1}{2}}} = \dfrac{1}{2} \)</span></li>
+        <li><span class="step-num">④</span><span>\( 2^{\frac{1}{3}} \cdot 2^{\frac{2}{3}} = 2^{\frac{1}{3}+\frac{2}{3}} = 2^1 = 2 \)</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📋</span>指数法則のまとめ（整数・分数全対応）</div>
+    <div class="formula-grid">
+      <div class="formula-box"><div class="label">①</div><div class="formula">\( a^m \cdot a^n = a^{m+n} \)</div></div>
+      <div class="formula-box"><div class="label">②</div><div class="formula">\( a^m \div a^n = a^{m-n} \)</div></div>
+      <div class="formula-box"><div class="label">③</div><div class="formula">\( (a^m)^n = a^{mn} \)</div></div>
+      <div class="formula-box"><div class="label">④</div><div class="formula">\( (ab)^n = a^n b^n \)</div></div>
+      <div class="formula-box"><div class="label">ゼロ乗</div><div class="formula">\( a^0 = 1 \)</div></div>
+      <div class="formula-box"><div class="label">負の乗</div><div class="formula">\( a^{-n} = \dfrac{1}{a^n} \)</div></div>
+      <div class="formula-box"><div class="label">分数指数①</div><div class="formula">\( a^{\frac{1}{n}} = \sqrt[n]{a} \)</div></div>
+      <div class="formula-box"><div class="label">分数指数②</div><div class="formula">\( a^{\frac{m}{n}} = \sqrt[n]{a^m} \)</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4: グラフ ===== -->
+<div id="s4" class="section">
+  <div class="card">
+    <div class="card-title"><span class="icon">📈</span>指数関数とは</div>
+    <div class="formula-highlight">\( y = a^x \quad (a > 0,\; a \neq 1) \)</div>
+    <div class="callout callout-info">
+      <span class="callout-icon">❓</span>
+      <div class="callout-body">
+        <strong>なぜ \(a > 0\) が必要？</strong> 底がマイナスだと \((-3)^{0.5}\) が実数で定義できないから。<br>
+        <strong>なぜ \(a \neq 1\) が必要？</strong> \(1^x = 1\) は常に1なので、xを1つに定められない（1対1対応でない）から。
+      </div>
+    </div>
+    <div class="formula-grid">
+      <div class="formula-box"><div class="label">底 a &gt; 1（例: y = 2ˣ）</div><div class="formula">単調増加関数<br>xが増えるとyも増える</div></div>
+      <div class="formula-box"><div class="label">底 0 &lt; a &lt; 1（例: y = (1/2)ˣ）</div><div class="formula">単調減少関数<br>xが増えるとyは減る</div></div>
+    </div>
+    <p class="subtle">共通：点(0, 1)と(1, a)を通り、x軸を漸近線とする曲線</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🎛️</span>インタラクティブグラフ — \( y = a^x \) を体験</div>
+    <div class="graph-controls">
+      <div class="control-group">
+        <div class="control-label">底の値 a（第1関数・青）</div>
+        <div class="slider-row">
+          <input type="range" id="sliderA" min="0.1" max="5" step="0.05" value="2">
+          <span class="slider-val" id="valA">2.00</span>
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="control-label">底の値 b（第2関数・橙 / 比較用）</div>
+        <div class="slider-row">
+          <input type="range" id="sliderB" min="0.1" max="5" step="0.05" value="0.5">
+          <span class="slider-val" id="valB">0.50</span>
+        </div>
+      </div>
+    </div>
+    <div class="toggle-row">
+      <button class="toggle-btn on" id="toggleA" onclick="toggleFunc('A')">
+        <span class="dot" style="background:#2563eb"></span> y = aˣ を表示
+      </button>
+      <button class="toggle-btn on" id="toggleB" onclick="toggleFunc('B')">
+        <span class="dot" style="background:#ea580c"></span> y = bˣ を比較表示
+      </button>
+      <button class="toggle-btn" id="toggleKey" onclick="toggleKeyPoints()">
+        <span class="dot" style="background:#16a34a"></span> 主要点を表示
+      </button>
+    </div>
+    <div class="canvas-wrap"><canvas id="expChart"></canvas></div>
+    <div class="graph-props" id="graphProps">
+      <div class="prop-card"><div class="prop-label">a の値</div><div class="prop-value" id="propA">2.00</div></div>
+      <div class="prop-card"><div class="prop-label">増加 / 減少</div><div class="prop-value" id="propType">増加関数（a &gt; 1）</div></div>
+      <div class="prop-card"><div class="prop-label">通過点 (0, 1)</div><div class="prop-value">常に通る ✓</div></div>
+      <div class="prop-card"><div class="prop-label">通過点 (1, a)</div><div class="prop-value" id="propPoint">(1, 2.00)</div></div>
+    </div>
+    <!-- 関数値の表 -->
+    <div class="graph-val-table">
+      <div class="val-label">📋 関数値の表（スライダーに連動して更新）</div>
+      <div class="table-scroll">
+        <table id="valTable">
+          <thead>
+            <tr>
+              <th>x</th>
+              <th class="th-a" id="thA">y = 2.00ˣ</th>
+              <th class="th-b" id="thB">y = 0.50ˣ</th>
+            </tr>
+          </thead>
+          <tbody id="valTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🔍</span>指数関数を使った大小比較</div>
+    <div class="formula-grid">
+      <div class="formula-box"><div class="label">a &gt; 1 のとき（増加関数）</div><div class="formula">\( m > n \Leftrightarrow a^m > a^n \)</div></div>
+      <div class="formula-box"><div class="label">0 &lt; a &lt; 1 のとき（減少関数）</div><div class="formula">\( m > n \Leftrightarrow a^m < a^n \)</div></div>
+    </div>
+    <div class="example-block">
+      <div class="ex-title">例題</div>
+      <ul class="step-list">
+        <li><span class="step-num">①</span><span>\( 2^5 \) と \( 2^6 \)：底2 > 1 → 指数大 → 大。よって \( 2^5 < 2^6 \)</span></li>
+        <li><span class="step-num">②</span><span>\( \left(\dfrac{1}{2}\right)^3 \) と \( \left(\dfrac{1}{2}\right)^5 \)：底 \(\frac{1}{2}\) < 1 → 指数大 → 小。よって \( \left(\dfrac{1}{2}\right)^3 > \left(\dfrac{1}{2}\right)^5 \)</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 5: 方程式・不等式 ===== -->
+<div id="s5" class="section">
+  <div class="card">
+    <div class="card-title"><span class="icon">⚖️</span>指数方程式の解き方</div>
+    <div class="callout callout-success">
+      <span class="callout-icon">🔑</span>
+      <div class="callout-body">
+        <strong>基本原理：</strong> \( a > 0,\; a \neq 1 \) のとき \( a^{f(x)} = a^{g(x)} \Leftrightarrow f(x) = g(x) \)<br>
+        <strong>→ 底をそろえて、指数の部分だけを比べる！</strong>
+      </div>
+    </div>
+    <div class="example-block">
+      <div class="ex-title">例題 1：底がすでにそろっている</div>
+      <ul class="step-list">
+        <li><span class="step-num">1</span><span>問題：\( 2^x = 8 \)</span></li>
+        <li><span class="step-num">2</span><span>\( 8 = 2^3 \) なので \( 2^x = 2^3 \)</span></li>
+        <li><span class="step-num">3</span><span>指数を比べて \( x = 3 \)</span></li>
+      </ul>
+    </div>
+    <div class="example-block">
+      <div class="ex-title">例題 2：底をそろえる</div>
+      <ul class="step-list">
+        <li><span class="step-num">1</span><span>問題：\( 4^x = 8 \)</span></li>
+        <li><span class="step-num">2</span><span>\( 4 = 2^2 \)、\( 8 = 2^3 \) と変形</span></li>
+        <li><span class="step-num">3</span><span>\( 2^{2x} = 2^3 \) → \( 2x = 3 \) → \( x = \dfrac{3}{2} \)</span></li>
+      </ul>
+    </div>
+    <div class="example-block">
+      <div class="ex-title">例題 3：置き換えを使う（応用）</div>
+      <ul class="step-list">
+        <li><span class="step-num">1</span><span>問題：\( 4^x - 5 \cdot 2^x + 4 = 0 \)</span></li>
+        <li><span class="step-num">2</span><span>\( 4^x = (2^x)^2 \) と変形、\( t = 2^x \)（\( t > 0 \)）とおく</span></li>
+        <li><span class="step-num">3</span><span>\( t^2 - 5t + 4 = 0 \) → \( (t-1)(t-4) = 0 \)</span></li>
+        <li><span class="step-num">4</span><span>\( 2^x=1 \) → \( x=0 \)、　\( 2^x=4 \) → \( x=2 \)</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📊</span>指数不等式の解き方</div>
+    <div class="callout callout-warning">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-body">
+        <strong>不等号の向きに注意！</strong><br>
+        ・\( a > 1 \) のとき：そのまま \( f(x) > g(x) \)<br>
+        ・\( 0 < a < 1 \) のとき：向きが <strong>逆！</strong> \( f(x) < g(x) \)
+      </div>
+    </div>
+    <div class="formula-grid">
+      <div class="formula-box"><div class="label">a &gt; 1 のとき</div><div class="formula">\( a^{f(x)} \geq a^{g(x)} \Leftrightarrow f(x) \geq g(x) \)</div></div>
+      <div class="formula-box"><div class="label">0 &lt; a &lt; 1 のとき</div><div class="formula">\( a^{f(x)} \geq a^{g(x)} \Leftrightarrow f(x) \leq g(x) \)</div></div>
+    </div>
+    <div class="example-block">
+      <div class="ex-title">例題（底 &gt; 1）</div>
+      <ul class="step-list">
+        <li><span class="step-num">1</span><span>問題：\( 3^x > 27 \)</span></li>
+        <li><span class="step-num">2</span><span>\( 27 = 3^3 \) なので \( 3^x > 3^3 \)</span></li>
+        <li><span class="step-num">3</span><span>底 3 > 1 → 向きそのまま → \( x > 3 \)</span></li>
+      </ul>
+    </div>
+    <div class="example-block">
+      <div class="ex-title">例題（底 &lt; 1）</div>
+      <ul class="step-list">
+        <li><span class="step-num">1</span><span>問題：\( \left(\dfrac{1}{2}\right)^x < 8 \)</span></li>
+        <li><span class="step-num">2</span><span>\( 8 = \left(\dfrac{1}{2}\right)^{-3} \) と変形</span></li>
+        <li><span class="step-num">3</span><span>底 \(\frac{1}{2}\) < 1 → 向きが<strong>逆！</strong> → \( x > -3 \)</span></li>
+      </ul>
+    </div>
+    <div class="example-block">
+      <div class="ex-title">よく使う変形パターン</div>
+      <ul class="step-list">
+        <li><span class="step-num">①</span><span>底の変形：\( 4=2^2,\ 8=2^3,\ 27=3^3,\ \frac{1}{4}=2^{-2} \)</span></li>
+        <li><span class="step-num">②</span><span>逆数：\( a^{-n} = \frac{1}{a^n} \)</span></li>
+        <li><span class="step-num">③</span><span>累乗根→分数指数：\( \sqrt[n]{a} = a^{\frac{1}{n}} \)</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 6: 応用 ===== -->
+<div id="s6" class="section">
+  <div class="app-card">
+    <h3>🎵 音階と指数関数</h3>
+    <p>現代の音階（平均律）は指数関数で作られています。1オクターブの中には<strong>12音</strong>あり、半音ずつ同じ倍率で周波数が上がります。</p>
+    <div class="app-fact">半音ごとの倍率は \( 2^{\frac{1}{12}} \approx 1.059 \) 倍</div>
+    <p>440Hz（ラの音）から半音 \( t \) 個分上の周波数は：</p>
+    <div class="app-fact">\( f(t) = 440 \times 2^{\frac{t}{12}} \; \text{(Hz)} \)</div>
+    <p>ギターのフレットの間隔も指数関数になっています！</p>
+  </div>
+
+  <div class="app-card" style="background: linear-gradient(135deg, #14532d 0%, #166534 100%);">
+    <h3>☢️ 放射性物質の半減期</h3>
+    <p>放射性物質は一定の時間で量が半分になります。この時間を<strong>半減期</strong>といいます。</p>
+    <p>例：半減期5日のビスマス。最初 100mg の場合：</p>
+    <div class="app-fact">\( f(t) = 100 \times \left(\dfrac{1}{2}\right)^{t/5} \; \text{(mg)} \)</div>
+    <div class="table-scroll" style="margin-top:12px;">
+    <table style="color:white;">
+      <thead><tr><th style="background:rgba(255,255,255,.2)">経過日数</th><th style="background:rgba(255,255,255,.2)">残量</th></tr></thead>
+      <tbody>
+        <tr><td style="color:white;background:transparent;border-bottom:1px solid rgba(255,255,255,.2)">0日後</td><td style="color:white;background:transparent;border-bottom:1px solid rgba(255,255,255,.2)">100 mg</td></tr>
+        <tr><td style="color:white;background:rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.2)">5日後</td><td style="color:white;background:rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.2)">50 mg</td></tr>
+        <tr><td style="color:white;background:transparent;border-bottom:1px solid rgba(255,255,255,.2)">10日後</td><td style="color:white;background:transparent;border-bottom:1px solid rgba(255,255,255,.2)">25 mg</td></tr>
+        <tr><td style="color:white;background:rgba(255,255,255,.08)">15日後</td><td style="color:white;background:rgba(255,255,255,.08)">12.5 mg</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="app-card" style="background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 100%);">
+    <h3>⭐ 星の明るさ（等星）</h3>
+    <p>等級が1上がるごとに明るさは約 <strong>2.5倍</strong>。1等星と6等星では：</p>
+    <div class="app-fact">\( 2.5^5 = 100 \) 倍の明るさの差 ← これも指数関数！</div>
+    <p>人間の感覚（視覚・聴覚など）は、指数・対数スケールで出来ています。</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🔗</span>指数関数が使われている身近な例</div>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>分野</th><th>内容</th><th>式の形</th></tr></thead>
+      <tbody>
+        <tr><td>🎵 音楽</td><td>音階・周波数</td><td>\( f = 440 \cdot 2^{\frac{t}{12}} \)</td></tr>
+        <tr><td>☢️ 物理</td><td>放射性崩壊・半減期</td><td>\( N = N_0 \cdot \left(\dfrac{1}{2}\right)^{\frac{t}{T}} \)</td></tr>
+        <tr><td>🌍 物理</td><td>大気圧の高度変化</td><td>\( P = P_0 \cdot e^{-kh} \)</td></tr>
+        <tr><td>💰 経済</td><td>複利計算</td><td>\( A = A_0(1+r)^t \)</td></tr>
+        <tr><td>🦠 生物</td><td>細菌の増殖</td><td>\( N = N_0 \cdot 2^{t/T} \)</td></tr>
+        <tr><td>⭐ 天文</td><td>星の等級</td><td>\( L \propto 2.5^{-m} \)</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 7: 練習問題 ===== -->
+<div id="quiz" class="section">
+  <div class="card">
+    <div class="card-title"><span class="icon">✏️</span>練習問題 — 単元を選ぼう</div>
+    <div class="unit-tabs" id="unitTabs"></div>
+    <div class="unit-header">
+      <div class="unit-title-row">
+        <span id="uIcon"></span>
+        <span id="uTitle"></span>
+        <span class="unit-badge-pill" id="uBadge"></span>
+      </div>
+      <div class="unit-progress-txt">正解 <strong><span id="uScore">0</span></strong> / <span id="uTotal">5</span></div>
+    </div>
+    <div id="quizContainer"></div>
+    <div class="quiz-result" id="quizResult">
+      <div class="result-score" id="resultScore"></div>
+      <div class="result-msg"  id="resultMsg"></div>
+    </div>
+    <div class="unit-nav">
+      <button class="unit-nav-btn" id="btnPrev" onclick="changeUnit(-1)">← 前の単元</button>
+      <button class="unit-nav-btn reset-btn" onclick="resetUnit()">🔄 リセット</button>
+      <button class="unit-nav-btn" id="btnNext" onclick="changeUnit(+1)">次の単元 →</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📊</span>全体の進捗</div>
+    <p class="subtle">全6単元・全30問。完了した単元は緑で表示されます。</p>
+    <div class="progress-grid" id="progressGrid"></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ─── Tab navigation ───
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const map = {s1:0,s2:1,s3:2,s4:3,s5:4,s6:5,quiz:6};
+  document.querySelectorAll('.tab-btn')[map[id]].classList.add('active');
+  if (id === 's4') setTimeout(initChart, 100);
+  if (id === 'quiz') initQuiz();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ─── MathJax ───
+function renderMath() {
+  if (window.MathJax) MathJax.typesetPromise();
+}
+function rerenderMath(el) {
+  setTimeout(() => {
+    if (window.MathJax) MathJax.typesetPromise([el]);
+  }, 80);
+}
+
+// ─── Chart.js interactive graph ───
+let myChart = null;
+let showA = true, showB = true, showKeyPts = false;
+
+function getExpData(base, xMin, xMax, steps) {
+  const data = [];
+  for (let i = 0; i <= steps; i++) {
+    const x = xMin + (xMax - xMin) * i / steps;
+    data.push({x, y: Math.pow(base, x)});
+  }
+  return data;
+}
+
+function initChart() {
+  if (myChart) return;
+  const ctx = document.getElementById('expChart').getContext('2d');
+  const a = parseFloat(document.getElementById('sliderA').value);
+  const b = parseFloat(document.getElementById('sliderB').value);
+  myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [
+        { label:`y = ${a.toFixed(2)}ˣ`, data:getExpData(a,-4,4,200),
+          borderColor:'#2563eb', borderWidth:2.5, pointRadius:0, tension:0.4, fill:false, hidden:!showA },
+        { label:`y = ${b.toFixed(2)}ˣ`, data:getExpData(b,-4,4,200),
+          borderColor:'#ea580c', borderWidth:2.5, pointRadius:0, tension:0.4, fill:false, hidden:!showB },
+        { label:'主要点', data:[], borderColor:'#16a34a', backgroundColor:'#16a34a',
+          pointRadius:7, pointHoverRadius:9, showLine:false, hidden:!showKeyPts }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      scales: {
+        x:{type:'linear', min:-4, max:4, grid:{color:'#e2e8f0'}, title:{display:true,text:'x'}, ticks:{stepSize:1}},
+        y:{type:'linear', min:-0.5, max:20, grid:{color:'#e2e8f0'}, title:{display:true,text:'y'}, ticks:{stepSize:2}}
+      },
+      plugins: {
+        legend:{display:true, position:'top'},
+        tooltip:{callbacks:{label:ctx=>` y = ${ctx.parsed.y.toFixed(3)}`}}
+      }
+    }
+  });
+  document.getElementById('sliderA').addEventListener('input', updateChart);
+  document.getElementById('sliderB').addEventListener('input', updateChart);
+  updateChart();
+}
+
+function updateChart() {
+  if (!myChart) return;
+  const a = parseFloat(document.getElementById('sliderA').value);
+  const b = parseFloat(document.getElementById('sliderB').value);
+  document.getElementById('valA').textContent = a.toFixed(2);
+  document.getElementById('valB').textContent = b.toFixed(2);
+  myChart.data.datasets[0].data  = getExpData(a,-4,4,200);
+  myChart.data.datasets[0].label = `y = ${a.toFixed(2)}ˣ`;
+  myChart.data.datasets[1].data  = getExpData(b,-4,4,200);
+  myChart.data.datasets[1].label = `y = ${b.toFixed(2)}ˣ`;
+  if (showKeyPts) {
+    myChart.data.datasets[2].data = [{x:0,y:1},{x:1,y:a},{x:-1,y:1/a}];
+  }
+  document.getElementById('propA').textContent     = a.toFixed(2);
+  document.getElementById('propType').textContent  = a>1 ? '増加関数（a > 1）' : a<1 ? '減少関数（a < 1）' : '定数（a = 1）';
+  document.getElementById('propPoint').textContent = `(1, ${a.toFixed(2)})`;
+  myChart.update();
+  updateTable();
+}
+
+function toggleFunc(which) {
+  if (!myChart) return;
+  if (which === 'A') { showA=!showA; myChart.data.datasets[0].hidden=!showA; document.getElementById('toggleA').classList.toggle('on',showA); }
+  else               { showB=!showB; myChart.data.datasets[1].hidden=!showB; document.getElementById('toggleB').classList.toggle('on',showB); }
+  myChart.update(); updateTable();
+}
+function toggleKeyPoints() {
+  if (!myChart) return;
+  showKeyPts=!showKeyPts; myChart.data.datasets[2].hidden=!showKeyPts;
+  document.getElementById('toggleKey').classList.toggle('on',showKeyPts);
+  updateChart();
+}
+
+// ─── Graph value table ───
+const TABLE_X = [-3,-2,-1,-0.5,0,0.5,1,2,3];
+function fmtNum(n) {
+  if (!isFinite(n)) return '—';
+  if (Math.abs(n)>=1000) return n.toFixed(0);
+  if (Math.abs(n)>=10)   return n.toFixed(2);
+  if (Math.abs(n)>=0.01) return n.toFixed(3);
+  return n.toExponential(1);
+}
+function updateTable() {
+  const tbody = document.getElementById('valTableBody');
+  const thA   = document.getElementById('thA');
+  const thB   = document.getElementById('thB');
+  if (!tbody) return;
+  const a = parseFloat(document.getElementById('sliderA').value);
+  const b = parseFloat(document.getElementById('sliderB').value);
+  if (thA) thA.textContent = `y = ${a.toFixed(2)}ˣ`;
+  if (thB) thB.textContent = `y = ${b.toFixed(2)}ˣ`;
+  tbody.innerHTML = TABLE_X.map(x => {
+    const yA = Math.pow(a, x);
+    const yB = Math.pow(b, x);
+    const xLabel = Number.isInteger(x) ? x : x.toFixed(1);
+    const tdA = showA ? `<td class="y-a">${fmtNum(yA)}</td>` : `<td class="y-dim">—</td>`;
+    const tdB = showB ? `<td class="y-b">${fmtNum(yB)}</td>` : `<td class="y-dim">—</td>`;
+    return `<tr class="${x===0?'row-zero':''}"><td><strong>${xLabel}</strong></td>${tdA}${tdB}</tr>`;
+  }).join('');
+}
+
+// ─── Quiz: 6 units × 5 questions = 30 questions ───
+const allUnits = [
+  { id:'u1', icon:'⚡', title:'指数法則', badge:'No.1-2', questions:[
+    { q:'\\( a^3 \\times a^4 \\) を計算すると？',
+      choices:['\\( a^{12} \\)','\\( a^7 \\)','\\( a^1 \\)','\\( 2a^7 \\)'], ans:1,
+      exp:'法則①：かけ算 → 指数のたし算。\\( a^3 \\times a^4 = a^{3+4} = a^7 \\)' },
+    { q:'\\( a^6 \\div a^2 \\) を計算すると？',
+      choices:['\\( a^3 \\)','\\( a^4 \\)','\\( a^8 \\)','\\( a^{12} \\)'], ans:1,
+      exp:'法則②：わり算 → 指数のひき算。\\( a^6 \\div a^2 = a^{6-2} = a^4 \\)' },
+    { q:'\\( (a^3)^2 \\) を計算すると？',
+      choices:['\\( a^5 \\)','\\( a^9 \\)','\\( a^6 \\)','\\( a^8 \\)'], ans:2,
+      exp:'法則③：累乗の累乗 → 指数のかけ算。\\( (a^3)^2 = a^6 \\)' },
+    { q:'\\( (2a)^3 \\) を計算すると？',
+      choices:['\\( 2a^3 \\)','\\( 6a^3 \\)','\\( 8a^3 \\)','\\( 2a^4 \\)'], ans:2,
+      exp:'法則④：\\( (2a)^3 = 2^3 \\cdot a^3 = 8a^3 \\)' },
+    { q:'\\( (a^2 b)^3 \\) を計算すると？',
+      choices:['\\( a^5 b^3 \\)','\\( a^6 b^3 \\)','\\( a^6 b^4 \\)','\\( a^8 b^3 \\)'], ans:1,
+      exp:'法則③④：\\( (a^2 b)^3 = (a^2)^3 \\cdot b^3 = a^6 b^3 \\)' }
+  ]},
+  { id:'u2', icon:'0️⃣', title:'整数指数の拡張', badge:'No.3', questions:[
+    { q:'\\( 7^0 \\) の値は？',
+      choices:['0','7','1','\\(\\frac{1}{7}\\)'], ans:2,
+      exp:'\\( a^0 = 1 \\)（ \\( a \\neq 0 \\)）。\\( a^n \\div a^n = a^0 = 1 \\) より。' },
+    { q:'\\( 2^{-3} \\) の値は？',
+      choices:['\\(-8\\)','\\(-6\\)','\\(\\frac{1}{8}\\)','\\(\\frac{1}{6}\\)'], ans:2,
+      exp:'負の指数 = 逆数。\\( 2^{-3} = \\dfrac{1}{2^3} = \\dfrac{1}{8} \\)' },
+    { q:'\\( \\left(\\dfrac{1}{3}\\right)^{-2} \\) の値は？',
+      choices:['\\(9\\)','\\(\\frac{1}{9}\\)','\\(-9\\)','\\(6\\)'], ans:0,
+      exp:'\\( \\left(\\dfrac{1}{3}\\right)^{-2} = 3^2 = 9 \\)。逆数にして符号を反転。' },
+    { q:'\\( a^{-5} \\times a^2 \\) を計算すると？',
+      choices:['\\(\\dfrac{1}{a^3}\\)','\\(a^{-10}\\)','\\(a^7\\)','\\(a^3\\)'], ans:0,
+      exp:'法則①：\\( a^{-5} \\times a^2 = a^{-5+2} = a^{-3} = \\dfrac{1}{a^3} \\)（マイナス乗は逆数に直して完成）' },
+    { q:'\\( 3^{-1} \\times 3^3 \\) の値は？',
+      choices:['\\(3\\)','\\(9\\)','\\(\\frac{1}{9}\\)','\\(27\\)'], ans:1,
+      exp:'\\( 3^{-1} \\times 3^3 = 3^{-1+3} = 3^2 = 9 \\)' }
+  ]},
+  { id:'u3', icon:'🌱', title:'累乗根・分数指数', badge:'No.4-8', questions:[
+    { q:'\\( 8^{\\frac{1}{3}} \\) の値は？',
+      choices:['2','4','\\(2\\sqrt{2}\\)','\\(\\sqrt[3]{2}\\)'], ans:0,
+      exp:'\\( 8^{\\frac{1}{3}} = \\sqrt[3]{8} \\)。\\( 2^3 = 8 \\) より \\( \\sqrt[3]{8} = 2 \\)' },
+    { q:'\\( 9^{\\frac{3}{2}} \\) の値は？',
+      choices:['18','81','27','\\(3\\sqrt{3}\\)'], ans:2,
+      exp:'\\( 9^{\\frac{3}{2}} = (3^2)^{\\frac{3}{2}} = 3^3 = 27 \\)' },
+    { q:'\\( 4^{-\\frac{1}{2}} \\) の値は？',
+      choices:['\\(2\\)','\\(-2\\)','\\(\\frac{1}{2}\\)','\\(-\\frac{1}{2}\\)'], ans:2,
+      exp:'\\( 4^{-\\frac{1}{2}} = \\dfrac{1}{4^{\\frac{1}{2}}} = \\dfrac{1}{2} \\)' },
+    { q:'\\( 27^{\\frac{2}{3}} \\) の値は？',
+      choices:['6','9','18','3'], ans:1,
+      exp:'\\( 27^{\\frac{2}{3}} = (3^3)^{\\frac{2}{3}} = 3^2 = 9 \\)' },
+    { q:'\\( 2^{\\frac{1}{2}} \\times 2^{\\frac{3}{2}} \\) を計算すると？',
+      choices:['\\(2\\)','\\(4\\)','\\(8\\)','\\(2\\sqrt{2}\\)'], ans:1,
+      exp:'\\( 2^{\\frac{1}{2}} \\times 2^{\\frac{3}{2}} = 2^{\\frac{1}{2}+\\frac{3}{2}} = 2^2 = 4 \\)' }
+  ]},
+  { id:'u4', icon:'📈', title:'グラフ・大小比較', badge:'No.9-10', questions:[
+    { q:'指数関数 \\( y = a^x \\) が必ず通る点は？',
+      choices:['\\((1,0)\\)','\\((0,1)\\)','\\((1,a)\\)','\\((0,a)\\)'], ans:1,
+      exp:'\\( x=0 \\) のとき \\( y = a^0 = 1 \\)。どんな底でも点 \\((0,1)\\) を通る。' },
+    { q:'\\( a > 1 \\) のとき、\\( y = a^x \\) は何関数？',
+      choices:['減少関数','定数関数','増加関数','偶関数'], ans:2,
+      exp:'底が1より大きいとき、xが増えるとyも増える単調増加関数。' },
+    { q:'\\( 2^5 \\) と \\( 2^6 \\) の大小は？',
+      choices:['\\(2^5 > 2^6\\)','\\(2^5 = 2^6\\)','\\(2^5 < 2^6\\)','比較不能'], ans:2,
+      exp:'底 \\(2 > 1\\) → 増加関数。指数が大きい方が大きい。\\( 2^5 < 2^6 \\)' },
+    { q:'\\( \\left(\\frac{1}{3}\\right)^2 \\) と \\( \\left(\\frac{1}{3}\\right)^4 \\) の大小は？',
+      choices:['\\(\\left(\\frac{1}{3}\\right)^2 < \\left(\\frac{1}{3}\\right)^4\\)','\\(\\left(\\frac{1}{3}\\right)^2 > \\left(\\frac{1}{3}\\right)^4\\)','等しい','比較不能'], ans:1,
+      exp:'底 \\(\\frac{1}{3} < 1\\) → 減少関数。指数大 → 値小。\\( \\frac{1}{9} > \\frac{1}{81} \\)' },
+    { q:'\\( 3^2 \\) と \\( 3^{-1} \\) の大小は？',
+      choices:['\\(3^2 < 3^{-1}\\)','\\(3^2 = 3^{-1}\\)','\\(3^2 > 3^{-1}\\)','比較不能'], ans:2,
+      exp:'底 \\(3 > 1\\) → 増加関数。\\( 2 > -1 \\) なので \\( 3^2 > 3^{-1} \\)（つまり \\(9 > \\frac{1}{3}\\)）' }
+  ]},
+  { id:'u5', icon:'⚖️', title:'指数方程式', badge:'No.11-12', questions:[
+    { q:'\\( 2^x = 16 \\) を解くと？',
+      choices:['\\(x=2\\)','\\(x=3\\)','\\(x=4\\)','\\(x=8\\)'], ans:2,
+      exp:'\\( 16 = 2^4 \\) なので \\( 2^x = 2^4 \\) → \\( x = 4 \\)' },
+    { q:'\\( 3^x = \\dfrac{1}{9} \\) を解くと？',
+      choices:['\\(x=-1\\)','\\(x=-2\\)','\\(x=2\\)','\\(x=\\frac{1}{9}\\)'], ans:1,
+      exp:'\\( \\frac{1}{9} = 3^{-2} \\) なので \\( x = -2 \\)' },
+    { q:'\\( 4^x = 8 \\) を解くと？',
+      choices:['\\(x=2\\)','\\(x=\\frac{3}{4}\\)','\\(x=\\frac{3}{2}\\)','\\(x=\\frac{2}{3}\\)'], ans:2,
+      exp:'\\( 4=2^2,\\ 8=2^3 \\) → \\( 2^{2x}=2^3 \\Rightarrow 2x=3 \\Rightarrow x=\\frac{3}{2} \\)' },
+    { q:'\\( 9^x = 27 \\) を解くと？',
+      choices:['\\(x=3\\)','\\(x=\\frac{2}{3}\\)','\\(x=\\frac{3}{2}\\)','\\(x=\\frac{4}{3}\\)'], ans:2,
+      exp:'\\( 9=3^2,\\ 27=3^3 \\) → \\( 3^{2x}=3^3 \\Rightarrow x=\\frac{3}{2} \\)' },
+    { q:'\\( 2^{2x} - 5 \\cdot 2^x + 4 = 0 \\) を解くと？',
+      choices:['\\(x=0,2\\)','\\(x=1,4\\)','\\(x=-1,2\\)','\\(x=0,4\\)'], ans:0,
+      exp:'\\( t=2^x \\) とおくと \\( t^2-5t+4=0 \\Rightarrow (t-1)(t-4)=0 \\)。\\( t=1 \\Rightarrow x=0,\\ t=4 \\Rightarrow x=2 \\)' }
+  ]},
+  { id:'u6', icon:'📊', title:'指数不等式', badge:'No.13', questions:[
+    { q:'\\( 2^x > 8 \\) を解くと？',
+      choices:['\\(x>2\\)','\\(x>3\\)','\\(x<3\\)','\\(x>4\\)'], ans:1,
+      exp:'\\( 8=2^3 \\)、底2>1 → 向きそのまま。\\( x > 3 \\)' },
+    { q:'\\( 3^x \\leq \\dfrac{1}{27} \\) を解くと？',
+      choices:['\\(x \\leq 3\\)','\\(x \\leq -3\\)','\\(x \\geq -3\\)','\\(x \\geq 3\\)'], ans:1,
+      exp:'\\( \\frac{1}{27}=3^{-3} \\)、底3>1 → 向きそのまま。\\( x \\leq -3 \\)' },
+    { q:'\\( \\left(\\dfrac{1}{2}\\right)^x < 8 \\) を解くと？',
+      choices:['\\(x < -3\\)','\\(x > 3\\)','\\(x < 3\\)','\\(x > -3\\)'], ans:3,
+      exp:'\\( 8=\\left(\\frac{1}{2}\\right)^{-3} \\)。底\\(\\frac{1}{2}<1\\) → 向き逆！\\( x > -3 \\)' },
+    { q:'\\( 4^x > 2 \\) を解くと？',
+      choices:['\\(x>\\frac{1}{2}\\)','\\(x>2\\)','\\(x>1\\)','\\(x>\\frac{1}{4}\\)'], ans:0,
+      exp:'\\( 4=2^2,\\ 2=2^1 \\) → \\( 2^{2x}>2^1 \\)、底2>1 → \\( 2x>1 \\Rightarrow x>\\frac{1}{2} \\)' },
+    { q:'\\( \\left(\\dfrac{1}{3}\\right)^x \\leq 9 \\) を解くと？',
+      choices:['\\(x \\leq 2\\)','\\(x \\geq 2\\)','\\(x \\geq -2\\)','\\(x \\leq -2\\)'], ans:2,
+      exp:'\\( 9=\\left(\\frac{1}{3}\\right)^{-2} \\)。底\\(\\frac{1}{3}<1\\) → 向き逆！\\( x \\geq -2 \\)' }
+  ]}
+];
+
+// ─── Quiz state ───
+let currentUnitIdx = 0;
+let unitStates = allUnits.map(u => ({
+  answered: new Array(u.questions.length).fill(false),
+  correct:  new Array(u.questions.length).fill(false),
+  score: 0, _chosen: {}
+}));
+
+function initQuiz() {
+  if (document.getElementById('unitTabs').children.length > 0) return;
+  buildUnitTabs();
+  switchUnit(0, false);
+  renderProgressGrid();
+}
+
+function buildUnitTabs() {
+  const container = document.getElementById('unitTabs');
+  container.innerHTML = '';
+  allUnits.forEach((u, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'unit-tab' + (i===0?' active':'');
+    btn.id = `utab-${i}`;
+    btn.onclick = () => switchUnit(i);
+    btn.innerHTML = `<span class="u-icon">${u.icon}</span><span class="u-name">${u.title}</span><span class="u-score" id="uscore-${i}">0 / ${u.questions.length}</span>`;
+    container.appendChild(btn);
+  });
+}
+
+function switchUnit(idx, scroll=true) {
+  currentUnitIdx = idx;
+  const u  = allUnits[idx];
+  const st = unitStates[idx];
+  document.querySelectorAll('.unit-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.getElementById('uIcon').textContent  = u.icon;
+  document.getElementById('uTitle').textContent = u.title;
+  document.getElementById('uBadge').textContent = u.badge;
+  document.getElementById('uScore').textContent = st.score;
+  document.getElementById('uTotal').textContent = u.questions.length;
+  document.getElementById('btnPrev').disabled   = idx===0;
+  document.getElementById('btnNext').disabled   = idx===allUnits.length-1;
+  buildUnitQuestions(idx);
+  if (scroll) window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function changeUnit(delta) {
+  const next = currentUnitIdx + delta;
+  if (next>=0 && next<allUnits.length) switchUnit(next);
+}
+
+function buildUnitQuestions(idx) {
+  const u  = allUnits[idx];
+  const st = unitStates[idx];
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  document.getElementById('quizResult').style.display = 'none';
+
+  u.questions.forEach((q, i) => {
+    const isAnswered = st.answered[i];
+    const isCorrect  = st.correct[i];
+    const div = document.createElement('div');
+    div.className = 'quiz-card' + (isAnswered ? (isCorrect?' correct':' wrong') : '');
+    div.id = `qcard-${i}`;
+
+    const choiceHTML = q.choices.map((c, j) => {
+      let cls = 'choice-btn';
+      if (isAnswered) {
+        if (j===q.ans) cls += ' reveal-correct';
+        if (j===st._chosen[i] && j!==q.ans) cls += ' selected-wrong';
+        if (j===st._chosen[i] && j===q.ans) cls += ' selected-correct';
+      }
+      return `<button class="${cls}" id="choice-${i}-${j}"
+        onclick="selectAnswer(${i},${j})" ${isAnswered?'disabled':''}>
+        <span class="choice-label">${'ABCD'[j]}</span><span>${c}</span>
+      </button>`;
+    }).join('');
+
+    div.innerHTML = `
+      <div class="quiz-num">問${i+1}｜${u.title}</div>
+      <div class="quiz-q">${q.q}</div>
+      <div class="quiz-choices">${choiceHTML}</div>
+      <div class="quiz-explanation" id="exp-${i}" style="display:${isAnswered?'block':'none'}">${q.exp}</div>
+    `;
+    container.appendChild(div);
+  });
+
+  if (st.answered.every(Boolean)) showUnitResult(idx);
+  rerenderMath(container);
+}
+
+function selectAnswer(qIdx, choiceIdx) {
+  const u  = allUnits[currentUnitIdx];
+  const st = unitStates[currentUnitIdx];
+  if (st.answered[qIdx]) return;
+  st.answered[qIdx]     = true;
+  st._chosen[qIdx]      = choiceIdx;
+
+  const card = document.getElementById(`qcard-${qIdx}`);
+  const btns = card.querySelectorAll('.choice-btn');
+  btns.forEach(b => b.disabled = true);
+
+  if (choiceIdx === u.questions[qIdx].ans) {
+    st.correct[qIdx] = true;
+    st.score++;
+    btns[choiceIdx].classList.add('selected-correct');
+    card.classList.add('correct');
+  } else {
+    btns[choiceIdx].classList.add('selected-wrong');
+    btns[u.questions[qIdx].ans].classList.add('reveal-correct');
+    card.classList.add('wrong');
+  }
+
+  document.getElementById('uScore').textContent = st.score;
+  updateUnitTab(currentUnitIdx);
+  renderProgressGrid();
+
+  const expEl = document.getElementById(`exp-${qIdx}`);
+  expEl.style.display = 'block';
+  rerenderMath(expEl);
+
+  if (st.answered.every(Boolean)) showUnitResult(currentUnitIdx);
+}
+
+function showUnitResult(idx) {
+  const u  = allUnits[idx];
+  const st = unitStates[idx];
+  const el = document.getElementById('quizResult');
+  el.style.display = 'block';
+  const pct = st.score / u.questions.length;
+  document.getElementById('resultScore').textContent = `${st.score} / ${u.questions.length}`;
+  const msgs = [
+    [1.0,'🎉 パーフェクト！完璧な理解です！'],
+    [0.8,'😊 とても良いです！あと少し！'],
+    [0.6,'👍 まずまず。間違えた問題を見直そう。'],
+    [0,  '📚 基礎から丁寧に復習しよう。']
+  ];
+  document.getElementById('resultMsg').textContent = msgs.find(([t])=>pct>=t)?.[1] || msgs[3][1];
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+  updateUnitTab(idx);
+  renderProgressGrid();
+}
+
+function updateUnitTab(idx) {
+  const u  = allUnits[idx];
+  const st = unitStates[idx];
+  const tab    = document.getElementById(`utab-${idx}`);
+  const scoreEl= document.getElementById(`uscore-${idx}`);
+  if (!tab||!scoreEl) return;
+  scoreEl.textContent = `${st.score} / ${u.questions.length}`;
+  tab.classList.toggle('done', st.answered.every(Boolean));
+}
+
+function renderProgressGrid() {
+  const grid = document.getElementById('progressGrid');
+  if (!grid) return;
+  grid.innerHTML = allUnits.map((u,i)=>{
+    const st   = unitStates[i];
+    const done = st.answered.every(Boolean);
+    const barW = Math.round(st.answered.filter(Boolean).length/u.questions.length*100);
+    return `<div class="prog-cell ${done?'unit-done':''}" onclick="switchUnit(${i})" style="cursor:pointer">
+      <div class="pc-unit">${u.icon} ${u.title}</div>
+      <div class="pc-num">${st.score}/${u.questions.length}</div>
+      <div class="pc-bar-wrap"><div class="pc-bar" style="width:${barW}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function resetUnit() {
+  const idx = currentUnitIdx;
+  const u   = allUnits[idx];
+  unitStates[idx] = {
+    answered: new Array(u.questions.length).fill(false),
+    correct:  new Array(u.questions.length).fill(false),
+    score: 0, _chosen: {}
+  };
+  document.getElementById('uScore').textContent = '0';
+  const tab = document.getElementById(`utab-${idx}`);
+  if (tab) { tab.classList.remove('done'); document.getElementById(`uscore-${idx}`).textContent=`0 / ${u.questions.length}`; }
+  buildUnitQuestions(idx);
+  renderProgressGrid();
+}
+</script>
+</body>
+</html>
